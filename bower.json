@@ -1,6 +1,6 @@
 {
   "name": "Pdf-Viewer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "PDF Viewer web component",
   "license": "MIT",
   "main": "dist/my-element.html",

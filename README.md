@@ -1,9 +1,9 @@
 
 # &lt;pdf-viewer&gt;
 
-Implementation of PDF viewer web component using PDF.JS from Mozila. This developed using [Polymer](http://www.polymer-project.org/). 
+Implementation of PDF viewer web component using PDF.JS from Mozila. 
 
-> Maintained by [Djalma Araújo](https://github.com/djalmaaraujo).
+> Maintained by [Rahmathullah](https://github.com/rahmathm1).
 
 ## Demo
 
@@ -11,7 +11,7 @@ Implementation of PDF viewer web component using PDF.JS from Mozila. This develo
 
 ## Usage
 
-1. Import Web Components' polyfill:
+1. Import Web Components.js:
 
 	```html
 	<script src="/webcomponents.min.js"></script>

@@ -1,0 +1,155 @@
+<!-- Import Polymer -->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<!-- Define your custom element -->
+<polymer-element name="se-badge">
+
+    <template>
+        <style type="text/css">
+            .se-badge {
+                text-align:center;
+                padding-top: 120px;
+                background-color: #F9F9F9;
+                background-image: url('images/stack-overflow-logo.png');
+                background-size:150px auto;
+                background-position: center 10px;
+                background-repeat: no-repeat;
+                font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
+                border-radius: 5px;
+                overflow: hidden;
+                display: none;
+            }
+            .se-badge .info {
+                background: #333;
+            }
+            .se-badge .display-image {
+                margin-top: -50px;
+                width: 100px;
+                box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.39);
+                border-radius: 50%;
+                min-height: 100px;
+                background-color: #F9F9F9;
+                background:url(images/loading_spinner.gif) no-repeat center #fff;
+            }
+            .se-badge .se-name {
+                padding: 5px;
+                color: #ddd;
+                font-size: 20px;
+                padding-bottom: 10px;
+                margin-top: 20px;
+            }
+            .se-badge .se-reputation {
+                margin-top: -30px;
+            }
+            .se-badge .se-reputation span {
+                background: #F48132;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: bold;
+                padding: 2px 10px;
+                color: #fff;
+                text-shadow: 0 1px rgba(0, 0, 0, 0.5);
+            }
+            .se-badge .se-coin {
+                color: #ccc;
+                text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+                font-size: 12px;
+                padding-bottom: 20px;
+                display: inline-block;
+            }
+            .se-badge .se-coin.se-gold span {
+                color: #FC0;
+            }
+            .se-badge .se-coin.se-silver span {
+                color: #C0C0C0
+            }
+            .se-badge .se-coin.se-bronze span {
+                color: #C96;
+            }
+        </style>
+        <div class="se-badge">
+            <div class="info">
+                <a href="{{ user.link }}">
+                    <img class="display-image" src="{{ user.profile_image }}" />
+                </a>
+                <div class="se-reputation"><span>{{ user.reputation }}</span></div>
+                <div class="se-name">{{ user.display_name }}</div>
+                <span class="se-coin se-gold"><span>●</span> {{ user.badge_counts.gold }}</span>
+                <span class="se-coin se-silver"><span>●</span> {{ user.badge_counts.silver }}</span>
+                <span class="se-coin se-bronze"><span>●</span> {{ user.badge_counts.bronze }}</span>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        Polymer('se-badge', {
+            // Fires when an instance of the element is created
+            created: function() {
+            },
+
+            // Fires when the element’s initial set of children and siblings are guaranteed to exist
+            domReady: function() {},
+
+            // Fires when the "<polymer-element>" has been fully prepared
+            ready: function() {
+                var _this = this;
+                ajax('https://api.stackexchange.com/2.2/users/' + this.getAttribute('userid')+ '?order=desc&sort=reputation&site=stackoverflow', function(response) {
+                    var jsonResponse = JSON.parse(response.responseText);
+                    _this.user = jsonResponse.items[0];
+                    _this.shadowRoot.querySelector('div').style.setProperty('display','block')
+                });
+            },
+
+            // Fires when the element was inserted into the document
+            attached: function() {},
+
+            // Fires when the element was removed from the document
+            detached: function() {},
+
+            // Fires when an attribute was added, removed, or updated
+            attributeChanged: function(attr, oldVal, newVal) {}
+        });
+
+        function ajax(url, callback) {
+            var xhr;
+             
+            if(typeof XMLHttpRequest !== 'undefined') xhr = new XMLHttpRequest();
+            else {
+                var versions = ["MSXML2.XmlHttp.5.0", 
+                                "MSXML2.XmlHttp.4.0",
+                                "MSXML2.XmlHttp.3.0", 
+                                "MSXML2.XmlHttp.2.0",
+                                "Microsoft.XmlHttp"]
+     
+                 for(var i = 0, len = versions.length; i < len; i++) {
+                    try {
+                        xhr = new ActiveXObject(versions[i]);
+                        break;
+                    }
+                    catch(e){}
+                 } // end for
+            }
+             
+            xhr.onreadystatechange = ensureReadiness;
+             
+            function ensureReadiness() {
+                if(xhr.readyState < 4) {
+                    return;
+                }
+                 
+                if(xhr.status !== 200) {
+                    return;
+                }
+     
+                // all is well  
+                if(xhr.readyState === 4) {
+                    callback(xhr);
+                }           
+            }
+             
+            xhr.open('GET', url, true);
+            xhr.send('');
+        }
+    </script>
+
+</polymer-element>

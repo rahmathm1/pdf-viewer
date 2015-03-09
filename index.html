@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PDF Reader Web Component</title>
+
+    <!-- Importing Web Component's Polyfill -->
+    <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script>
+
+    <!-- Importing Custom Elements -->
+    <link rel="import" href="src/pdf-viewer.html">
+
+</head>
+<body>
+	<div class="wrapper">
+        <button onclick="prevPage();">Previous Page</button>
+        <button onclick="nextPage();">Next Page</button>
+	    <!-- Using Custom Elements -->
+	    <pdf-viewer id="my_pdf_viewer" path="/cv-rahmathullah-m.en.pdf"></pdf-viewer>
+	</div>
+    <script type="text/javascript">
+        /* this is only for demo purpose */
+        myPdfViewer = document.getElementById('my_pdf_viewer');
+
+        function nextPage() {
+            if(!myPdfViewer.nextPage())
+                alert('You are on the last page.');
+        }
+
+        function prevPage() {
+            if(!myPdfViewer.prevPage())
+                alert('You are on the first page.');
+        }
+
+    </script>
+</body>
+</html>

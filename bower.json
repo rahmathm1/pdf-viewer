@@ -1,9 +1,9 @@
 {
   "name": "Pdf-Viewer",
-  "version": "1.0.2",
-  "description": "PDF Viewer web component",
+  "version": "1.0.1",
+  "description": "PDF Viewer web component implemented using Mozila PDF JS.",
   "license": "MIT",
-  "main": "dist/my-element.html",
+  "main": "dist/pdf-viewer.html",
   "keywords": [
     "web-components"
   ],

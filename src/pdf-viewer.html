@@ -31,7 +31,7 @@
             shadowRoot.appendChild(clone);
 
             // Caches <canvas> DOM query
-            pdfProto.canvas = shadowRoot.getElementById('pdf-canvas');
+            this.canvas = shadowRoot.getElementById('pdf-canvas');
 
             if (this.hasAttribute('path')) {
                 var path = this.getAttribute('path');
@@ -40,69 +40,69 @@
         };
 
         pdfProto.renderBook = function() {
-            pdfProto.pageNumPending = null;
-            pdfProto.pageRendering = false;
-            pdfProto.pageNumPending = null;
-            pdfProto.ctx = pdfProto.canvas.getContext('2d');
-            pdfProto.scale = 2;
-            pdfProto.pageNum = 1;
-            pdfProto.isReady = false;
+            this.pageNumPending = null;
+            this.pageRendering = false;
+            this.pageNumPending = null;
+            this.ctx = this.canvas.getContext('2d');
+            this.scale = 2;
+            this.pageNum = 1;
+            this.isReady = false;
 
             PDFJS.disableWorker = true;
             PDFJS.workerSrc = '/src/js/pdf/pdf.worker.js';
             PDFJS.getDocument(this.path).then(function(pdfDoc) {
-                pdfProto.pdf = pdfDoc;
-                pdfProto.renderPage(pdfProto.pageNum);
-            });
+                this.pdf = pdfDoc;
+                this.renderPage(this.pageNum);
+            }.bind(this));
         };
 
         pdfProto.renderPage = function(num) {
-            pdfProto.pageRendering = true;
-            pdfProto.pdf.getPage(num).then(function(page) {
-                var viewport = page.getViewport(pdfProto.scale);
-                pdfProto.canvas.height = viewport.height;
-                pdfProto.canvas.width = viewport.width;
+            this.pageRendering = true;
+            this.pdf.getPage(num).then(function(page) {
+                var viewport = page.getViewport(this.scale);
+                this.canvas.height = viewport.height;
+                this.canvas.width = viewport.width;
 
                 var renderContext = {
-                    canvasContext: pdfProto.ctx,
+                    canvasContext: this.ctx,
                     viewport: viewport
                 };
                 var renderTask = page.render(renderContext);
-                pdfProto.isReady = true;
+                this.isReady = true;
 
                 renderTask.promise.then(function() {
-                    pdfProto.pageRendering = false;
-                    if (pdfProto.pageNumPending !== null) {
-                        pdfProto.renderPage(pdfProto.pageNumPending);
-                        pdfProto.pageNumPending = null;
+                    this.pageRendering = false;
+                    if (this.pageNumPending !== null) {
+                        this.renderPage(this.pageNumPending);
+                        this.pageNumPending = null;
                     }
-                });
-            });
+                }.bind(this));
+            }.bind(this));
         };
 
         pdfProto.nextPage = function() {
-            if (pdfProto.pageNum >= pdfProto.pdf.numPages) {
+            if (this.pageNum >= this.pdf.numPages) {
                 return false;
             }
-            pdfProto.pageNum++;
-            pdfProto.queueRenderPage(pdfProto.pageNum);
+            this.pageNum++;
+            this.queueRenderPage(this.pageNum);
             return true;
         };
 
         pdfProto.prevPage = function() {
-            if (pdfProto.pageNum <= 1) {
+            if (this.pageNum <= 1) {
                 return false;
             }
-            pdfProto.pageNum--;
-            pdfProto.queueRenderPage(pdfProto.pageNum);
+            this.pageNum--;
+            this.queueRenderPage(this.pageNum);
             return true;
         };
 
         pdfProto.queueRenderPage = function(num) {
-            if (pdfProto.pageRendering) {
-                pdfProto.pageNumPending = num;
+            if (this.pageRendering) {
+                this.pageNumPending = num;
             } else {
-                pdfProto.renderPage(num);
+                this.renderPage(num);
             }
         };
 

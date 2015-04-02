@@ -1,130 +1,129 @@
-    <template>
-        <canvas id="pdf-canvas"></canvas>
-    </template>
-    <script src="js/pdf/pdf.js"></script>
-    <script src="js/pdf/pdf.worker.js"></script>
-    <script>
-        (function(window, document, undefined) {
-            // Refers to the "importer", which is index.html
-            var thatDoc = document;
+<template>
+    <canvas id="pdf-canvas"></canvas>
+</template>
+<script src="js/pdf/pdf.js"></script>
+<script src="js/pdf/pdf.worker.js"></script>
+<script>
+    (function(window, document, undefined) {
+        // Refers to the "importer", which is index.html
+        var thatDoc = document;
 
 
-            // Refers to the "importee", which is src/hello-world.html
-            var thisDoc =  (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
+        // Refers to the "importee", which is src/hello-world.html
+        var thisDoc = (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
 
-            // Gets content from <template>
-            var template = thisDoc.querySelector('template').content;
+        // Gets content from <template>
+        var template = thisDoc.querySelector('template').content;
 
-            // Creates an object based in the HTML Element prototype
-            var pdfProto = Object.create(HTMLElement.prototype);
+        // Creates an object based in the HTML Element prototype
+        var pdfProto = Object.create(HTMLElement.prototype);
 
-            // Fires when an instance of the element is created
-            pdfProto.createdCallback =  function() {
-            
-                // Creates the shadow root
-                var shadowRoot = this.createShadowRoot();
+        // Fires when an instance of the element is created
+        pdfProto.createdCallback = function() {
 
-                // Adds a template clone into shadow root
-                var clone = thatDoc.importNode(template, true);
-                shadowRoot.appendChild(clone);
+            // Creates the shadow root
+            var shadowRoot = this.createShadowRoot();
 
-                // Caches <canvas> DOM query
-                pdfProto.canvas = shadowRoot.getElementById('pdf-canvas');
+            // Adds a template clone into shadow root
+            var clone = thatDoc.importNode(template, true);
+            shadowRoot.appendChild(clone);
 
-                if (this.hasAttribute('path')) {
-                    var path = this.getAttribute('path');
-                    this.setPath(path);
-                }
-                else {
-                    this.setPath(this.path);
-                }
+            // Caches <canvas> DOM query
+            pdfProto.canvas = shadowRoot.getElementById('pdf-canvas');
 
-                this.renderBook();
-            };
-
-            pdfProto.renderBook = function() {
-                pdfProto.pageNumPending = null;
-                pdfProto.pageRendering = false;
-                pdfProto.pageNumPending = null;
-                pdfProto.ctx = pdfProto.canvas.getContext('2d');
-                pdfProto.scale = 2;
-                pdfProto.pageNum = 1;
-                pdfProto.isReady = false;
-
-                PDFJS.disableWorker = true;
-                PDFJS.workerSrc = '/src/js/pdf/pdf.worker.js';
-                PDFJS.getDocument(this.path).then(function (pdfDoc) {
-                    pdfProto.pdf = pdfDoc;
-                    pdfProto.renderPage(pdfProto.pageNum);
-                });
-            };
-
-            pdfProto.renderPage = function (num) {
-                pdfProto.pageRendering = true;
-                pdfProto.pdf.getPage(num).then(function(page) {
-                    var viewport = page.getViewport(pdfProto.scale);
-                    pdfProto.canvas.height = viewport.height;
-                    pdfProto.canvas.width = viewport.width;
-
-                    var renderContext = {
-                        canvasContext: pdfProto.ctx,
-                        viewport: viewport
-                    };
-                    var renderTask = page.render(renderContext);
-                    pdfProto.isReady = true;
-
-                    renderTask.promise.then(function () {
-                        pdfProto.pageRendering = false;
-                        if (pdfProto.pageNumPending !== null) {
-                            pdfProto.renderPage(pdfProto.pageNumPending);
-                            pdfProto.pageNumPending = null;
-                        }
-                    });
-                });
+            if (this.hasAttribute('path')) {
+                var path = this.getAttribute('path');
+                this.setPath(path);
+            } else {
+                this.setPath(this.path);
             }
 
-            pdfProto.nextPage = function () {
-                if (pdfProto.pageNum >= pdfProto.pdf.numPages) {
-                    return false;
-                }
-                pdfProto.pageNum++;
-                pdfProto.queueRenderPage(pdfProto.pageNum);
-                return true;
-            }
+            this.renderBook();
+        };
 
-            pdfProto.prevPage = function() {
-                if (pdfProto.pageNum <= 1) {
-                    return false;
-                }
-                pdfProto.pageNum--;
-                pdfProto.queueRenderPage(pdfProto.pageNum);
-                return true;
-            }
+        pdfProto.renderBook = function() {
+            pdfProto.pageNumPending = null;
+            pdfProto.pageRendering = false;
+            pdfProto.pageNumPending = null;
+            pdfProto.ctx = pdfProto.canvas.getContext('2d');
+            pdfProto.scale = 2;
+            pdfProto.pageNum = 1;
+            pdfProto.isReady = false;
 
-            pdfProto.queueRenderPage = function (num) {
-                if (pdfProto.pageRendering) {
-                    pdfProto.pageNumPending = num;
-                } else {
-                    pdfProto.renderPage(num);
-                }
-            }
-
-            // Fires when an attribute was added, removed, or updated
-            pdfProto.attributeChangedCallback = function(attr, oldVal, newVal) {
-                if (attr === 'path') {
-                    this.setPath(newVal);
-                    this.renderBook();
-                }
-            };
-
-            // Sets new value to "who" attribute
-            pdfProto.setPath = function(val) {
-                this.path = val;
-            };
-
-            // Registers <hello-world> in the main document
-            window.PdfViewer = thatDoc.registerElement('pdf-viewer', {
-                prototype: pdfProto
+            PDFJS.disableWorker = true;
+            PDFJS.workerSrc = '/src/js/pdf/pdf.worker.js';
+            PDFJS.getDocument(this.path).then(function(pdfDoc) {
+                pdfProto.pdf = pdfDoc;
+                pdfProto.renderPage(pdfProto.pageNum);
             });
-        })(window, document);
-    </script>
+        };
+
+        pdfProto.renderPage = function(num) {
+            pdfProto.pageRendering = true;
+            pdfProto.pdf.getPage(num).then(function(page) {
+                var viewport = page.getViewport(pdfProto.scale);
+                pdfProto.canvas.height = viewport.height;
+                pdfProto.canvas.width = viewport.width;
+
+                var renderContext = {
+                    canvasContext: pdfProto.ctx,
+                    viewport: viewport
+                };
+                var renderTask = page.render(renderContext);
+                pdfProto.isReady = true;
+
+                renderTask.promise.then(function() {
+                    pdfProto.pageRendering = false;
+                    if (pdfProto.pageNumPending !== null) {
+                        pdfProto.renderPage(pdfProto.pageNumPending);
+                        pdfProto.pageNumPending = null;
+                    }
+                });
+            });
+        }
+
+        pdfProto.nextPage = function() {
+            if (pdfProto.pageNum >= pdfProto.pdf.numPages) {
+                return false;
+            }
+            pdfProto.pageNum++;
+            pdfProto.queueRenderPage(pdfProto.pageNum);
+            return true;
+        }
+
+        pdfProto.prevPage = function() {
+            if (pdfProto.pageNum <= 1) {
+                return false;
+            }
+            pdfProto.pageNum--;
+            pdfProto.queueRenderPage(pdfProto.pageNum);
+            return true;
+        }
+
+        pdfProto.queueRenderPage = function(num) {
+            if (pdfProto.pageRendering) {
+                pdfProto.pageNumPending = num;
+            } else {
+                pdfProto.renderPage(num);
+            }
+        }
+
+        // Fires when an attribute was added, removed, or updated
+        pdfProto.attributeChangedCallback = function(attr, oldVal, newVal) {
+            if (attr === 'path') {
+                this.setPath(newVal);
+                this.renderBook();
+            }
+        };
+
+        // Sets new value to "who" attribute
+        pdfProto.setPath = function(val) {
+            this.path = val;
+        };
+
+        // Registers <hello-world> in the main document
+        window.PdfViewer = thatDoc.registerElement('pdf-viewer', {
+            prototype: pdfProto
+        });
+    })(window, document);
+</script>

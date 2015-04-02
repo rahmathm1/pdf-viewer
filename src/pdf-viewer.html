@@ -37,8 +37,6 @@
                 var path = this.getAttribute('path');
                 this.setPath(path);
             }
-
-            this.renderBook();
         };
 
         pdfProto.renderBook = function() {
@@ -112,13 +110,13 @@
         pdfProto.attributeChangedCallback = function(attr, oldVal, newVal) {
             if (attr === 'path') {
                 this.setPath(newVal);
-                this.renderBook();
             }
         };
 
         // Sets new value to "who" attribute
         pdfProto.setPath = function(val) {
             this.path = val;
+            this.renderBook();
         };
 
         // Registers <hello-world> in the main document
